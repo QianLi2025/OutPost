@@ -18,6 +18,9 @@ int16_t angle5;
 uint8_t rx_data[8];
 
 int16_t last_ecd=4096;
+int16_t last_ecd1=4096;
+int16_t last_ecd2=4096;
+
 
 //uint8_t motor_data[16];
 float a1 ;
@@ -60,15 +63,15 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     motor_yaw_info_1.torque_current = ((rx_data[4] << 8) | rx_data[5]);
     motor_yaw_info_1.temp           =   rx_data[6];
 		
-		if(motor_yaw_info_1.rotor_angle - last_ecd < -4096)
+		if(motor_yaw_info_1.rotor_angle - last_ecd1 < -4096)
 		{
-			motor_yaw_info_1.rotor_angle = motor_yaw_info_3.rotor_angle + 8192;
+			motor_yaw_info_1.rotor_angle = motor_yaw_info_1.rotor_angle + 8192;
 		};
-		if(motor_yaw_info_1.rotor_angle - last_ecd > 4096)
+		if(motor_yaw_info_1.rotor_angle - last_ecd1 > 4096)
 		{
-			motor_yaw_info_1.rotor_angle = motor_yaw_info_3.rotor_angle - 8192;
+			motor_yaw_info_1.rotor_angle = motor_yaw_info_1.rotor_angle - 8192;
 		};
-		last_ecd = motor_yaw_info_1.rotor_angle;
+		last_ecd1 = motor_yaw_info_1.rotor_angle;
 		a3= 1.7454 + (motor_yaw_info_1.rotor_angle - 3400) * (-1.1055 - 1.7454) / (8000 - 3400); 
 		break;
 	}
@@ -108,15 +111,15 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     motor_yaw_info_4.torque_current = ((rx_data[4] << 8) | rx_data[5]);
     motor_yaw_info_4.temp           =   rx_data[6];
 		
-		if(motor_yaw_info_4.rotor_angle - last_ecd < -4096)
+		if(motor_yaw_info_4.rotor_angle - last_ecd2 < -4096)
 		{
-			motor_yaw_info_4.rotor_angle = motor_yaw_info_3.rotor_angle + 8192;
+			motor_yaw_info_4.rotor_angle = motor_yaw_info_4.rotor_angle + 8192;
 		};
-		if(motor_yaw_info_4.rotor_angle - last_ecd > 4096)
+		if(motor_yaw_info_4.rotor_angle - last_ecd2 > 4096)
 		{
-			motor_yaw_info_4.rotor_angle = motor_yaw_info_3.rotor_angle - 8192;
+			motor_yaw_info_4.rotor_angle = motor_yaw_info_4.rotor_angle - 8192;
 		};
-		last_ecd = motor_yaw_info_4.rotor_angle;
+		last_ecd2 = motor_yaw_info_4.rotor_angle;
 		a4 =1.3968 + (motor_yaw_info_4.rotor_angle - 3300) * (-1.7918-1.3968) / (-3200);  
 		break;
 	}
