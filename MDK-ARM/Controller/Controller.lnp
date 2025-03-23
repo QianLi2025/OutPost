@@ -37,12 +37,10 @@
 "controller\heap_4.o"
 "controller\port.o"
 "controller\senddatatask.o"
-"controller\zeropointtask.o"
 "controller\crc8_crc16.o"
 "controller\bsp_can.o"
 "controller\bsp_dwt.o"
 "controller\pid.o"
-"controller\flash_storage.o"
 --strict --scatter "Controller\Controller.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

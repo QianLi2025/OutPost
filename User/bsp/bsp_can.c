@@ -17,7 +17,7 @@ int16_t angle5;
 
 uint8_t rx_data[8];
 
-int16_t last_ecd;
+int16_t last_ecd=4096;
 
 //uint8_t motor_data[16];
 float a1 ;
