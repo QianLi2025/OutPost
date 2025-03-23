@@ -19,18 +19,6 @@ PID_Increment_Struct PID_Speed = {10.0f, 0.2f, 0.1f};
 #define CAN_Handle hcan1       
 #define MAX_OUTPUT 16384       
 
-
-
-float GetMotorSpeed()
-{
-    int16_t speed = 0;
-	speed=motor_yaw_info_1.rotor_speed;
-    return speed;
-}
-
-
-
-
 float PID_Increment(PID_Increment_Struct *PID, float Current, float Target)
 {
     float err, out, proportion, differential;

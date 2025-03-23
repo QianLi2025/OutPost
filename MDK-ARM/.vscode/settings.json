@@ -4,6 +4,9 @@
         "senddatatask.h": "c",
         "imu_task.h": "c",
         "ist8310driver.h": "c",
-        "bsp_delay.h": "c"
+        "bsp_delay.h": "c",
+        "cmsis_os.h": "c",
+        "bsp_can.h": "c",
+        "zeropointtask.h": "c"
     }
 }

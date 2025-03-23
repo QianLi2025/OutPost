@@ -10,8 +10,7 @@
 
 #define CONTROLLER_CMD_ID 0x0302 // 自定义控制器命令码
 
-
-
+#include <stdint.h>
 #pragma pack(1)
 
 typedef __packed struct

@@ -41,7 +41,7 @@ void StartSendDataTask(void const *argument)
 		memcpy(motor_data + 12, &a4, sizeof(a4)); // 将 a4 的字节复制到 motor_data[12]
         uint8_t data[DATA_LENGTH] = {0};//,motor_yaw_info_3.rotor_angle,motor_yaw_info_1.rotor_angle,motor_yaw_info_4.rotor_angle,motor_yaw_info_5.rotor_angle};
         memcpy(data, motor_data, 4 * sizeof(float));
-		Data_Concatenation(data, DATA_LENGTH);
+				Data_Concatenation(data, DATA_LENGTH);
         HAL_UART_Transmit(&huart1, (uint8_t *)(&tx_data), sizeof(tx_data), 50);
         osDelayUntil(&wait_time, 50);
     }

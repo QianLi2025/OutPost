@@ -50,6 +50,7 @@
 osThreadId defaultTaskHandle;
 osThreadId SendDataTaskHandle;
 osThreadId IMU_TaskHandle;
+osThreadId ZeroPointTaskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -59,6 +60,7 @@ osThreadId IMU_TaskHandle;
 void StartDefaultTask(void const * argument);
 void StartSendDataTask(void const * argument);
 void Start_IMU_Task(void const * argument);
+void StartZeroPointTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -116,6 +118,10 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of IMU_Task */
   osThreadDef(IMU_Task, Start_IMU_Task, osPriorityIdle, 0, 128);
   IMU_TaskHandle = osThreadCreate(osThread(IMU_Task), NULL);
+
+  /* definition and creation of ZeroPointTask */
+  osThreadDef(ZeroPointTask, StartZeroPointTask, osPriorityNormal, 0, 128);
+  ZeroPointTaskHandle = osThreadCreate(osThread(ZeroPointTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -175,6 +181,24 @@ __weak void Start_IMU_Task(void const * argument)
     osDelay(1);
   }
   /* USER CODE END Start_IMU_Task */
+}
+
+/* USER CODE BEGIN Header_StartZeroPointTask */
+/**
+* @brief Function implementing the ZeroPointTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartZeroPointTask */
+__weak void StartZeroPointTask(void const * argument)
+{
+  /* USER CODE BEGIN StartZeroPointTask */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartZeroPointTask */
 }
 
 /* Private application code --------------------------------------------------*/

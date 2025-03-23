@@ -18,7 +18,6 @@ typedef struct {
     float Out_Last;           
 } PID_Increment_Struct;
 
-float GetMotorSpeed(void);
 float PID_Increment(PID_Increment_Struct *PID, float Current, float Target);
 
 #endif

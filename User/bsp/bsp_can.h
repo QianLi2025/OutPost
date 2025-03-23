@@ -16,14 +16,12 @@ typedef struct
 
 void Can_filter_init(void);
 void CAN_cmd_chassis(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4);
-
+void CAN_cmd_chassis1(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4);
 //float a1 ;
 //float a2 ;
 //float a3 ;  
 //float a4 ; 
 
 //uint8_t motor_data[16];
-
-
 
 #endif

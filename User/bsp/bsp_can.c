@@ -8,7 +8,16 @@ moto_info_t motor_yaw_info_2;
 moto_info_t motor_yaw_info_3;
 moto_info_t motor_yaw_info_4;
 moto_info_t motor_yaw_info_5;
+
+int16_t angle1=0;
+int16_t angle2;
+int16_t angle3;
+int16_t angle4;
+int16_t angle5;
+
 uint8_t rx_data[8];
+
+int16_t last_ecd;
 
 //uint8_t motor_data[16];
 float a1 ;
@@ -50,8 +59,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     motor_yaw_info_1.rotor_speed    = ((rx_data[2] << 8) | rx_data[3]);
     motor_yaw_info_1.torque_current = ((rx_data[4] << 8) | rx_data[5]);
     motor_yaw_info_1.temp           =   rx_data[6];
-		
-		a3= 1.7 + (motor_yaw_info_1.rotor_angle - 1500) * (-1.4 - 1.7) / (4500 - 1500); 
+		a3= 1.7454 + (motor_yaw_info_1.rotor_angle - 3400) * (-1.1055 - 1.7454) / (8000 - 3400); 
 		break;
 	}
 	  case 0x202:
@@ -60,7 +68,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     motor_yaw_info_2.rotor_speed    = ((rx_data[2] << 8) | rx_data[3]);
     motor_yaw_info_2.torque_current = ((rx_data[4] << 8) | rx_data[5]);
     motor_yaw_info_2.temp           =   rx_data[6];
-		a1 = 1.6+(motor_yaw_info_2.rotor_angle-3926)*(-0.12-1.6)/(6433-3926);
+		a1 = 1.6875+(motor_yaw_info_2.rotor_angle-3800)*(-0.2393-1.6875)/(6430-3800);
 		break;
 	}
 	  case 0x203:
@@ -69,7 +77,17 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     motor_yaw_info_3.rotor_speed    = ((rx_data[2] << 8) | rx_data[3]);
     motor_yaw_info_3.torque_current = ((rx_data[4] << 8) | rx_data[5]);
     motor_yaw_info_3.temp           =   rx_data[6];
-		a2 = -0.3+(motor_yaw_info_3.rotor_angle-2000)*(-2.28+0.3)/(5000-2000);
+		
+		if(motor_yaw_info_3.rotor_angle - last_ecd < -4096)
+		{
+			motor_yaw_info_3.rotor_angle = motor_yaw_info_3.rotor_angle + 8192;
+		};
+		if(motor_yaw_info_3.rotor_angle - last_ecd > 4096)
+		{
+			motor_yaw_info_3.rotor_angle = motor_yaw_info_3.rotor_angle - 8192;
+		};
+		last_ecd = motor_yaw_info_3.rotor_angle;
+		a2 = -0.8805+(motor_yaw_info_3.rotor_angle-500)*(-2.3875+0.8805)/(3000-500);
 		break;
 	}
 	case 0x204:
@@ -78,7 +96,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     motor_yaw_info_4.rotor_speed    = ((rx_data[2] << 8) | rx_data[3]);
     motor_yaw_info_4.torque_current = ((rx_data[4] << 8) | rx_data[5]);
     motor_yaw_info_4.temp           =   rx_data[6];
-		a4 = -1.5 + (motor_yaw_info_4.rotor_angle - 3700) * (0.78+1.5) / (6700 - 3700);  
+		a4 =1.3968 + (motor_yaw_info_4.rotor_angle - 3300) * (-1.7918-1.3968) / (-3200);  
 		break;
 	}
 	case 0x205:
@@ -100,14 +118,42 @@ void CAN_cmd_chassis(int16_t motor1, int16_t motor2, int16_t motor3, int16_t mot
     chassis_tx_message.IDE = CAN_ID_STD;
     chassis_tx_message.RTR = CAN_RTR_DATA;
     chassis_tx_message.DLC = 0x08;
+
     chassis_can_send_data[0] = motor1 >> 8;
     chassis_can_send_data[1] = motor1;
     chassis_can_send_data[2] = motor2 >> 8;
-    chassis_can_send_data[3] = motor2;
+    chassis_can_send_data[3] = motor2 ;
     chassis_can_send_data[4] = motor3 >> 8;
-    chassis_can_send_data[5] = motor3;
+    chassis_can_send_data[5] = motor3 ;
     chassis_can_send_data[6] = motor4 >> 8;
-    chassis_can_send_data[7] = motor4;
+    chassis_can_send_data[7] = motor4 ;
 
- HAL_CAN_AddTxMessage(&hcan1, &chassis_tx_message, chassis_can_send_data, (uint32_t *)CAN_TX_MAILBOX0);
+    HAL_CAN_AddTxMessage(&hcan1, &chassis_tx_message, chassis_can_send_data, (uint32_t *)CAN_TX_MAILBOX0);
+
+/*    chassis_tx_message.StdId = 0x1FF;
+    chassis_tx_message.DLC = 0x02;
+
+    chassis_can_send_data[0] = motor5 >> 8;
+    chassis_can_send_data[1] = motor5 ;
+
+    HAL_CAN_AddTxMessage(&hcan1, &chassis_tx_message, chassis_can_send_data, (uint32_t *)CAN_TX_MAILBOX0);*/
+}
+
+void CAN_cmd_chassis1(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4)
+{	
+    chassis_tx_message.StdId = 0x1FF;
+    chassis_tx_message.IDE = CAN_ID_STD;
+    chassis_tx_message.RTR = CAN_RTR_DATA;
+    chassis_tx_message.DLC = 0x08;
+
+    chassis_can_send_data[0] = motor1 >> 8;
+    chassis_can_send_data[1] = motor1;
+    chassis_can_send_data[2] = motor2 >> 8;
+    chassis_can_send_data[3] = motor2 ;
+    chassis_can_send_data[4] = motor3 >> 8;
+    chassis_can_send_data[5] = motor3 ;
+    chassis_can_send_data[6] = motor4 >> 8;
+    chassis_can_send_data[7] = motor4 ;
+
+    HAL_CAN_AddTxMessage(&hcan1, &chassis_tx_message, chassis_can_send_data, (uint32_t *)CAN_TX_MAILBOX0);
 }
