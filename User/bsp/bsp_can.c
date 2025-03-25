@@ -72,7 +72,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 			motor_yaw_info_1.rotor_angle = motor_yaw_info_1.rotor_angle - 8192;
 		};
 		last_ecd1 = motor_yaw_info_1.rotor_angle;
-		a3= 1.7454 + (motor_yaw_info_1.rotor_angle - 3400) * (-1.1055 - 1.7454) / (8000 - 3400); 
+		a3= 1.7454 + (motor_yaw_info_1.rotor_angle - 3400) * (-2.1055 - 1.7454) / (9600 - 3400); 
 		break;
 	}
 	  case 0x202:
@@ -111,10 +111,10 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     motor_yaw_info_4.torque_current = ((rx_data[4] << 8) | rx_data[5]);
     motor_yaw_info_4.temp           =   rx_data[6];
 		
-		if(motor_yaw_info_4.rotor_angle - last_ecd2 < -4096)
-		{
-			motor_yaw_info_4.rotor_angle = motor_yaw_info_4.rotor_angle + 8192;
-		};
+//		if(motor_yaw_info_4.rotor_angle - last_ecd2 < -4096)
+//		{
+//			motor_yaw_info_4.rotor_angle = motor_yaw_info_4.rotor_angle + 8192;
+//		};
 		if(motor_yaw_info_4.rotor_angle - last_ecd2 > 4096)
 		{
 			motor_yaw_info_4.rotor_angle = motor_yaw_info_4.rotor_angle - 8192;
