@@ -6,7 +6,7 @@
 #include "string.h"
 #include "bsp_can.h"
 
-/***********º¯Êı¶¨ÒåÇø******************/
+/***********o¡¥??¡§??******************/
 
 extern moto_info_t motor_yaw_info_1;
 extern moto_info_t motor_yaw_info_2;
@@ -19,13 +19,15 @@ extern float a2 ;
 extern float a3 ;  
 extern float a4 ; 
 
-uint8_t motor_data[16];
+uint8_t motor_data[18];
+int8_t state=0;
+int8_t z_state=0;
 
 static void Data_Concatenation(uint8_t *data, uint16_t data_lenth);
 
-/*************È«¾Ö±äÁ¿Çø*****************/
+/*************?????*****************/
 
-Controller_t tx_data; // ×Ô¶¨Òå¿ØÖÆÆ÷·¢ËÍµÄÊı¾İ
+Controller_t tx_data; // ??¡§????¡Â¡¤¡é?¦Ì?y??
 
 
 void StartSendDataTask(void const *argument)
@@ -34,13 +36,33 @@ void StartSendDataTask(void const *argument)
     uint32_t wait_time = xTaskGetTickCount();
     for (;;)
     {
-		// ä½¿ç”¨ memcpy å°†æ¯ä¸ªæµ®ç‚¹æ•°çš„å­—èŠ‚å¤åˆ¶åˆ° int8_t æ•°ç»„ä¸­  
-		memcpy(motor_data, &a1, sizeof(a1)); // å°† a1 çš„å­—èŠ‚å¤åˆ¶åˆ° motor_data  
-		memcpy(motor_data + 4, &a2, sizeof(a2)); // å°† a2 çš„å­—èŠ‚å¤åˆ¶åˆ° motor_data[4]  
-		memcpy(motor_data + 8, &a3, sizeof(a3)); // å°† a3 çš„å­—èŠ‚å¤åˆ¶åˆ° motor_data[8]  
-		memcpy(motor_data + 12, &a4, sizeof(a4)); // å°† a4 çš„å­—èŠ‚å¤åˆ¶åˆ° motor_data[12]
+			if(HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_9) == GPIO_PIN_RESET){
+				state = 1;
+			}
+			else if(HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_9) == GPIO_PIN_SET){
+				state =0;
+			}
+      if((HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_11) == GPIO_PIN_RESET)&&(HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_14) == GPIO_PIN_SET))
+      {
+        z_state=1;
+      }
+      else if((HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_11) == GPIO_PIN_SET)&&(HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_14) == GPIO_PIN_RESET))
+      {
+        z_state=2;
+      }
+      else if((HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_11) == GPIO_PIN_SET)&&(HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_14) == GPIO_PIN_SET))
+      {
+        z_state=0;
+      }
+		// Ê¹ÓÃ memcpy ½«Ã¿¸ö¸¡µãÊıµÄ×Ö½Ú¸´ÖÆµ½ int8_t Êı×éÖĞ  
+		memcpy(motor_data, &a1, sizeof(a1)); // ½« a1 µÄ×Ö½Ú¸´ÖÆµ½ motor_data  
+		memcpy(motor_data + 4, &a2, sizeof(a2)); // ½« a2 µÄ×Ö½Ú¸´ÖÆµ½ motor_data[4]  
+		memcpy(motor_data + 8, &a3, sizeof(a3)); // ½« a3 µÄ×Ö½Ú¸´ÖÆµ½ motor_data[8]  
+		memcpy(motor_data + 12, &a4, sizeof(a4)); // ½« a4 µÄ×Ö½Ú¸´ÖÆµ½ motor_data[12]
+    memcpy(motor_data + 16, &state, sizeof(state));
+    memcpy(motor_data + 17, &z_state, sizeof(z_state));
         uint8_t data[DATA_LENGTH] = {0};//,motor_yaw_info_3.rotor_angle,motor_yaw_info_1.rotor_angle,motor_yaw_info_4.rotor_angle,motor_yaw_info_5.rotor_angle};
-        memcpy(data, motor_data, 4 * sizeof(float));
+        memcpy(data, motor_data, 4 * sizeof(float)+2);
 				Data_Concatenation(data, DATA_LENGTH);
         HAL_UART_Transmit(&huart1, (uint8_t *)(&tx_data), sizeof(tx_data), 50);
         osDelayUntil(&wait_time, 50);
@@ -48,22 +70,22 @@ void StartSendDataTask(void const *argument)
 }
 
 /**
- * @brief Êı¾İÆ´½Óº¯Êı£¬½«Ö¡Í·¡¢ÃüÁîÂë¡¢Êı¾İ¶Î¡¢Ö¡Î²Í·Æ´½Ó³ÉÒ»¸öÊı×é
- * @param data Êı¾İ¶ÎµÄÊı×éÖ¸Õë
- * @param data_lenth Êı¾İ¶Î³¤¶È
+ * @brief ???¡ä??¡¥?¡ê??????¡é¨¹¨¢«î?¡é???¦±¡é?¦Â??????????
+ * @param data ???¦Å?y???
+ * @param data_lenth ???¦Ã¡è??
  */
 static void Data_Concatenation(uint8_t *data, uint16_t data_lenth)
 {
     static uint8_t seq = 0;
-    /// Ö¡Í·Êı¾İ
-    tx_data.frame_header.sof = 0xA5;                              // Êı¾İÖ¡ÆğÊ¼×Ö½Ú£¬¹Ì¶¨ÖµÎª 0xA5
-    tx_data.frame_header.data_length = data_lenth;                // Êı¾İÖ¡ÖĞÊı¾İ¶ÎµÄ³¤¶È
-    tx_data.frame_header.seq = seq++;                             // °üĞòºÅ
-    append_CRC8_check_sum((uint8_t *)(&tx_data.frame_header), 5); // Ìí¼ÓÖ¡Í· CRC8 Ğ£ÑéÎ»
-    /// ÃüÁîÂëID
+    /// ?????
+    tx_data.frame_header.sof = 0xA5;                              // ??????????1?¡§?? 0xA5
+    tx_data.frame_header.data_length = data_lenth;                // ????????¦Å?¡è??
+    tx_data.frame_header.seq = seq++;                             // ¡ã¨¹§Óo¨­
+    append_CRC8_check_sum((uint8_t *)(&tx_data.frame_header), 5); // ????? CRC8 §µ?¦Ë
+    /// ¨¹¨¢«îID
     tx_data.cmd_id = CONTROLLER_CMD_ID;
-    /// Êı¾İ¶Î
+    /// ????
     memcpy(tx_data.data, data, data_lenth);
-    /// Ö¡Î²CRC16£¬Õû°üĞ£Ñé
+    /// ?¦ÂCRC16¡ê??¡ã¨¹§µ?
     append_CRC16_check_sum((uint8_t *)(&tx_data), DATA_FRAME_LENGTH);
 }
