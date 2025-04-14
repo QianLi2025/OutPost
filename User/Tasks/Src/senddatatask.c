@@ -18,8 +18,9 @@ extern float a1 ;
 extern float a2 ;
 extern float a3 ;  
 extern float a4 ; 
+extern float a5 ; 
 
-uint8_t motor_data[18];
+uint8_t motor_data[22];
 int8_t state=0;
 int8_t z_state=0;
 
@@ -59,10 +60,10 @@ void StartSendDataTask(void const *argument)
 		memcpy(motor_data + 4, &a2, sizeof(a2)); // 将 a2 的字节复制到 motor_data[4]  
 		memcpy(motor_data + 8, &a3, sizeof(a3)); // 将 a3 的字节复制到 motor_data[8]  
 		memcpy(motor_data + 12, &a4, sizeof(a4)); // 将 a4 的字节复制到 motor_data[12]
-    memcpy(motor_data + 16, &state, sizeof(state));
-    memcpy(motor_data + 17, &z_state, sizeof(z_state));
+	  memcpy(motor_data + 16, &a4, sizeof(a5));
+    memcpy(motor_data + 20, &state, sizeof(state));
+    memcpy(motor_data + 21, &z_state, sizeof(z_state));
         uint8_t data[DATA_LENGTH] = {0};//,motor_yaw_info_3.rotor_angle,motor_yaw_info_1.rotor_angle,motor_yaw_info_4.rotor_angle,motor_yaw_info_5.rotor_angle};
-        memcpy(data, motor_data, 4 * sizeof(float)+2);
 				Data_Concatenation(data, DATA_LENGTH);
         HAL_UART_Transmit(&huart1, (uint8_t *)(&tx_data), sizeof(tx_data), 50);
         osDelayUntil(&wait_time, 50);

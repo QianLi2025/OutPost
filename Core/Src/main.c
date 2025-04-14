@@ -26,11 +26,12 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bsp_can.h"
+#include "pid.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+extern moto_info_t motor_yaw_info_3;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -94,6 +95,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
  
 	Can_filter_init();
+//	PID speed;
+//	PID_Init(&speed,20,0,0,1000,1000);
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
@@ -110,7 +113,8 @@ int main(void)
   {
 		
     /* USER CODE END WHILE */
-
+//PID_Calc(&speed,30,motor_yaw_info_3.rotor_speed);
+//		CAN_cmd_chassis(0,0,speed.output,0);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
