@@ -2,10 +2,15 @@
 #define BSP_CAN_H
 
 #include "main.h"
+#include "M3508motors.h"
+#include "pid.h"
+
 static CAN_TxHeaderTypeDef  chassis_tx_message;
 static uint8_t              chassis_can_send_data[8];
 extern CAN_HandleTypeDef hcan1;
 
+
+void pid_all_init(void);
 typedef struct
 {
 	int16_t rotor_angle;

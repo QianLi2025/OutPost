@@ -40,6 +40,7 @@
 "controller\crc8_crc16.o"
 "controller\bsp_can.o"
 "controller\bsp_dwt.o"
+"controller\m3508motors.o"
 "controller\pid.o"
 --strict --scatter "Controller\Controller.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols

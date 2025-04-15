@@ -93,7 +93,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
- 
+ pid_all_init();
 	Can_filter_init();
 //	PID speed;
 //	PID_Init(&speed,20,0,0,1000,1000);

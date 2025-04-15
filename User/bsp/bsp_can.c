@@ -1,6 +1,11 @@
 #include "main.h"
 #include "bsp_can.h"
 
+
+
+
+
+
 extern CAN_HandleTypeDef hcan1;
 
 moto_info_t motor_yaw_info_1;
@@ -20,6 +25,8 @@ uint8_t rx_data[8];
 int16_t last_ecd=4096;
 int16_t last_ecd1=4096;
 int16_t last_ecd2=4096;
+
+
 
 
 //uint8_t motor_data[16];
@@ -125,6 +132,8 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	}
 	case 0x205:
 	{
+		M3508_fbkdata(&roll_motor, rx_data);
+		
     motor_yaw_info_5.rotor_angle    = ((rx_data[0] << 8) | rx_data[1]);
     motor_yaw_info_5.rotor_speed    = ((rx_data[2] << 8) | rx_data[3]);
     motor_yaw_info_5.torque_current = ((rx_data[4] << 8) | rx_data[5]);
@@ -180,4 +189,12 @@ void CAN_cmd_chassis1(int16_t motor1, int16_t motor2, int16_t motor3, int16_t mo
     chassis_can_send_data[7] = motor4 ;
 
     HAL_CAN_AddTxMessage(&hcan1, &chassis_tx_message, chassis_can_send_data, (uint32_t *)CAN_TX_MAILBOX0);
+}
+
+void pid_all_init(void)
+{
+	PID_init( &roll_angle_pid,  PID_POSITION,  10,  0,  0.1,  1000,  500);
+	
+	PID_init( &roll_speed_pid,  PID_POSITION,  400,  0.1,  0,  5000, 400);
+	
 }

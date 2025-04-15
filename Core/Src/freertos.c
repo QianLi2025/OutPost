@@ -25,7 +25,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "bsp_can.h"
+extern M3508motor_t roll_motor;
 
+double roll_angle_output;
+double roll_speed_output;
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -142,6 +146,12 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+		
+		    // 
+     roll_angle_output = PID_calc(&roll_angle_pid, roll_motor.total_angle, 0);   
+    // 计算升降速度的PID输出
+     roll_speed_output = PID_calc(&roll_speed_pid, roll_motor.para.vel_fbk, roll_angle_output); 
+		CAN_cmd_chassis1( roll_speed_output, 0,  0,  0);
     osDelay(1);
   }
   /* USER CODE END StartDefaultTask */
