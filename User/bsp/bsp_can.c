@@ -1,11 +1,6 @@
 #include "main.h"
 #include "bsp_can.h"
 
-
-
-
-
-
 extern CAN_HandleTypeDef hcan1;
 
 moto_info_t motor_yaw_info_1;
@@ -118,10 +113,10 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
     motor_yaw_info_4.torque_current = ((rx_data[4] << 8) | rx_data[5]);
     motor_yaw_info_4.temp           =   rx_data[6];
 		
-//		if(motor_yaw_info_4.rotor_angle - last_ecd2 < -4096)
-//		{
-//			motor_yaw_info_4.rotor_angle = motor_yaw_info_4.rotor_angle + 8192;
-//		};
+		if(motor_yaw_info_4.rotor_angle - last_ecd2 < -4096)
+		{
+			motor_yaw_info_4.rotor_angle = motor_yaw_info_4.rotor_angle + 8192;
+		};
 		if(motor_yaw_info_4.rotor_angle - last_ecd2 > 4096)
 		{
 			motor_yaw_info_4.rotor_angle = motor_yaw_info_4.rotor_angle - 8192;
@@ -196,5 +191,4 @@ void pid_all_init(void)
 	PID_init( &roll_angle_pid,  PID_POSITION,  10,  0,  0.1,  1000,  500);
 	
 	PID_init( &roll_speed_pid,  PID_POSITION,  400,  0.1,  0,  5000, 400);
-	
 }

@@ -31,7 +31,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-extern moto_info_t motor_yaw_info_3;
+extern moto_info_t motor_yaw_info_1;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -93,10 +93,10 @@ int main(void)
   MX_USART1_UART_Init();
   MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
- pid_all_init();
+  pid_all_init();
 	Can_filter_init();
-//	PID speed;
-//	PID_Init(&speed,20,0,0,1000,1000);
+//  pid_type_def speed;
+//  PID_init(&speed, PID_POSITION,20, 0, 0, 1000, 1000);
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
@@ -107,14 +107,14 @@ int main(void)
 
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
+  /* USER CODE BEGIN WHILE */ 
 
   while (1)
   {
 		
     /* USER CODE END WHILE */
-//PID_Calc(&speed,30,motor_yaw_info_3.rotor_speed);
-//		CAN_cmd_chassis(0,0,speed.output,0);
+//    PID_calc(&speed, motor_yaw_info_1.rotor_speed,40);
+//		CAN_cmd_chassis(speed.out,0,0,0);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

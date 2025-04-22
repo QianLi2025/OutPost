@@ -17,9 +17,9 @@ extern moto_info_t motor_yaw_info_5;
 
 extern float a1 ;
 extern float a2 ;
-extern float a3 ;  
-extern float a4 ; 
-extern float a5 ; 
+extern float a3 ;
+extern float a4 ;
+extern float a5 ;
 
 uint8_t motor_data[22];
 
@@ -31,15 +31,16 @@ static void Data_Concatenation(uint8_t *data, uint16_t data_lenth);
 
 /*************?????*****************/
 
-Controller_t tx_data; // ??¨????÷·￠?μ?y??
+Controller_t tx_data;
 
 
 void StartSendDataTask(void const *argument)
 {
-    // uint8_t index = 0;
+
     uint32_t wait_time = xTaskGetTickCount();
     for (;;)
     {
+			//末端roll轴的旋转控制判断
 			if(roll_motor.total_angle>0.35)
 			{roll_direction=1;}
 			else if(roll_motor.total_angle<-0.35)
@@ -47,6 +48,7 @@ void StartSendDataTask(void const *argument)
 			else
 			{roll_direction=0;}
 			
+			//末端吸盘和升降的控制判断
 			if(HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_9) == GPIO_PIN_RESET){
 				state = 1;
 			}
@@ -65,6 +67,7 @@ void StartSendDataTask(void const *argument)
       {
         z_state=0;
       }
+			
 		// 使用 memcpy 将每个浮点数的字节复制到 int8_t 数组中  
 		memcpy(motor_data, &a1, sizeof(a1)); // 将 a1 的字节复制到 motor_data  
 		memcpy(motor_data + 4, &a2, sizeof(a2)); // 将 a2 的字节复制到 motor_data[4]  
@@ -75,31 +78,37 @@ void StartSendDataTask(void const *argument)
     memcpy(motor_data + 17, &state, sizeof(state));
     memcpy(motor_data + 18, &z_state, sizeof(z_state));
 			
-        uint8_t data[DATA_LENGTH] = {0};//,motor_yaw_info_3.rotor_angle,motor_yaw_info_1.rotor_angle,motor_yaw_info_4.rotor_angle,motor_yaw_info_5.rotor_angle};
-				memcpy(data, motor_data, sizeof(motor_data));
-				Data_Concatenation(data, DATA_LENGTH);
-        HAL_UART_Transmit(&huart1, (uint8_t *)(&tx_data), sizeof(tx_data), 50);
-        osDelayUntil(&wait_time, 50);
+    uint8_t data[DATA_LENGTH] = {0};
+		memcpy(data, motor_data, sizeof(motor_data));
+		Data_Concatenation(data, DATA_LENGTH);
+    HAL_UART_Transmit(&huart1, (uint8_t *)(&tx_data), sizeof(tx_data), 50);
+    osDelayUntil(&wait_time, 25);
     }
 }
 
 /**
- * @brief ???′??ˉ?￡??????￠üá?￠???Ρ￠?β??????????
- * @param data ???ε?y???
- * @param data_lenth ???γ¤??
+ * @brief 数据打包函数，完成帧头构造、数据填充和CRC校验
+ * @param data 待发送的原始数据指针
+ * @param data_lenth 原始数据长度（字节）
  */
 static void Data_Concatenation(uint8_t *data, uint16_t data_lenth)
 {
-    static uint8_t seq = 0;
-    /// ?????
-    tx_data.frame_header.sof = 0xA5;                              // ??????????1?¨?? 0xA5
-    tx_data.frame_header.data_length = data_lenth;                // ????????ε?¤??
-    tx_data.frame_header.seq = seq++;                             // °üвoō
-    append_CRC8_check_sum((uint8_t *)(&tx_data.frame_header), 5); // ????? CRC8 У?λ
-    /// üáID
-    tx_data.cmd_id = CONTROLLER_CMD_ID;
-    /// ????
+    static uint8_t seq = 0;  // 包序列号计数器
+    
+    /* 帧头构造 */
+    tx_data.frame_header.sof = 0xA5;               // 帧起始字节（固定0xA5）
+    tx_data.frame_header.data_length = data_lenth; // 有效数据长度
+    tx_data.frame_header.seq = seq++;              // 递增包序列号
+    
+    /* 帧头CRC8校验 */
+    append_CRC8_check_sum((uint8_t *)(&tx_data.frame_header), 5);
+    
+    /* 命令ID设置 */
+    tx_data.cmd_id = CONTROLLER_CMD_ID;  // 控制器命令ID
+    
+    /* 有效数据填充 */
     memcpy(tx_data.data, data, data_lenth);
-    /// ?βCRC16￡??°üУ?
+    
+    /* 整帧CRC16校验 */
     append_CRC16_check_sum((uint8_t *)(&tx_data), DATA_FRAME_LENGTH);
 }
